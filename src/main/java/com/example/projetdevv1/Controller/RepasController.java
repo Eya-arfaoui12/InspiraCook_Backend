@@ -25,22 +25,25 @@ public class RepasController {
     private JwtUtils jwtUtils;
 
 
-    @GetMapping(produces = MediaType.APPLICATION_XML_VALUE)
-     public ResponseEntity<List<Repas>> getAllRepas() {
+    @GetMapping
+    public ResponseEntity<List<Repas>> getAllRepas() {
         List<Repas> repasList = repasService.getAllRepas();
-        if (repasList.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(repasList);
+        return repasList.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(repasList);
+    }
+
+    @GetMapping("/getRepasByCategorie/{idC}")
+    public ResponseEntity<List<Repas>> getRepasByCategorie(@PathVariable int idC) {
+        List<Repas> repasList = repasService.getRepasByCategorie(idC);
+        return repasList.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(repasList);
     }
 
 
     @PostMapping("/createRepas")
    // @PreAuthorize("hasRole('Chef')")
-    public ResponseEntity<Repas> createRepas(@RequestBody Repas repas, @RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<Repas> createRepas(@RequestBody Repas repas, @RequestHeader("Authorization") String authHeader, @RequestParam int categorie_id) {
         String token = authHeader.replace("Bearer ", "");
         Long userId = jwtUtils.extractUserId(token);
-        Repas createdRepas = repasService.createRepas(repas,userId);
+        Repas createdRepas = repasService.createRepas(repas,userId, categorie_id);
         return ResponseEntity.status(201).body(createdRepas);
     }
 
